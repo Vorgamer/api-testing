@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "3ee7a41f-4af0-425a-a7c4-d73df5aa9cb5",
+		"name": "API Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6134268"
+	},
+	"item": [
+		{
+			"name": "Create user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// generate almost unique number\r",
+							"function getRandomSixDigitNumber() {\r",
+							"    return Math.floor(100000 + Math.random() * 900000);\r",
+							"}\r",
+							"\r",
+							"//create almost unique email address\r",
+							"var randomTomekEmail = \"tomek\" + getRandomSixDigitNumber() + \"@tester.com\";\r",
+							"\r",
+							"pm.globals.set(\"randomTomekEmail\", randomTomekEmail);\r",
+							"console.log(\"Current random email after setting before POST request:\", pm.globals.get(\"randomTomekEmail\"));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// validate status code is correct\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// validate response body is correct\r",
+							"pm.test(\"Response looks good :)\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"id\");\r",
+							"    pm.expect(jsonData).to.have.property(\"name\", \"Tomek Tester\");\r",
+							"    pm.expect(jsonData.email).to.eql(pm.globals.get(\"randomTomekEmail\"));\r",
+							"\r",
+							"    pm.globals.set(\"userId\", jsonData.id);\r",
+							"    console.log(\"Current userId after setting in POST request:\", pm.globals.get(\"userId\"));\r",
+							"});\r",
+							"\r",
+							"console.log(\"Current userId in POST request after tests:\", pm.globals.get(\"userId\"));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "90180c250120895b5c5c11231b0ddd330678fb589cd4df17cb0bfcd9d459d969",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Tomek Tester\",\r\n    \"gender\": \"male\",\r\n    \"email\": \"{{randomTomekEmail}}\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Generated from cURL: curl -i -H \"Accept:application/json\" -H \"Content-Type:application/json\" -H \"Authorization: Bearer ACCESS-TOKEN\" -XPOST \"https://gorest.co.in/public/v2/users\" -d '{\"name\":\"Tenali Ramakrishna\", \"gender\":\"male\", \"email\":\"tenali.ramakrishna@15ce.com\", \"status\":\"active\"}'"
+			},
+			"response": []
+		},
+		{
+			"name": "Get user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// validate status code is correct\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"console.log(\"Current userId used in request:\", pm.globals.get(\"userId\"));\r",
+							"\r",
+							"// validate response body is correct\r",
+							"pm.test(\"Response looks good :)\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"id\", pm.globals.get(\"userId\"));\r",
+							"    pm.expect(jsonData).to.have.property(\"name\", \"Tomek Tester\");\r",
+							"    pm.expect(jsonData).to.have.property(\"email\", pm.globals.get(\"randomTomekEmail\"));\r",
+							"    pm.expect(jsonData).to.have.property(\"gender\", \"male\");\r",
+							"    pm.expect(jsonData).to.have.property(\"status\", \"active\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "90180c250120895b5c5c11231b0ddd330678fb589cd4df17cb0bfcd9d459d969",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/{{userId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// validate status code is correct\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"console.log(\"Current userId used in request:\", pm.globals.get(\"userId\"));\r",
+							"\r",
+							"// validate response body is correct\r",
+							"pm.test(\"Response looks good :)\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"id\", pm.globals.get(\"userId\"));\r",
+							"    pm.expect(jsonData).to.have.property(\"name\", \"Tomek Best Tester Ever1\");\r",
+							"    pm.expect(jsonData).to.have.property(\"email\", pm.globals.get(\"randomTomekEmail\"));\r",
+							"    pm.expect(jsonData).to.have.property(\"gender\", \"male\");\r",
+							"    pm.expect(jsonData).to.have.property(\"status\", \"active\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "90180c250120895b5c5c11231b0ddd330678fb589cd4df17cb0bfcd9d459d969",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Tomek Best Tester Ever1\",\r\n    \"email\": \"{{randomTomekEmail}}\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/{{userId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				},
+				"description": "Generated from cURL: curl -i -H \"Accept:application/json\" -H \"Content-Type:application/json\" -H \"Authorization: Bearer 90180c250120895b5c5c11231b0ddd330678fb589cd4df17cb0bfcd9d459d969\" -XPATCH \"https://gorest.co.in/public/v2/users/6940320\" -d '{\"name\":\"Allasani Peddana\", \"email\":\"allasani.peddana@15ce.com\", \"status\":\"active\"}'"
+			},
+			"response": []
+		}
+	]
+}
